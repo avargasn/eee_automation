@@ -1,0 +1,13 @@
+- name: Deploy L2VPN config
+  hosts: l2vpn
+  gather_facts: false
+  tasks:
+    - name: Deploy CE config
+      arista.eos.eos_config:
+        src: l2vpn/ce.j2
+      when: service_role == "ce"
+
+    - name: Deploy PE config
+      arista.eos.eos_config:
+        src: l2vpn/pe.j2
+      when: service_role == "pe"

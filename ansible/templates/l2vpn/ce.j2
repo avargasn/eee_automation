@@ -1,0 +1,23 @@
+{% set id = (inventory_hostname | regex_search('[0-9]+')) | int %}
+hostname {{ inventory_hostname | upper }}
+!
+vlan {{ vlan }}
+!
+interface Ethernet1
+   switchport trunk allowed vlan {{ vlan }}
+   switchport mode trunk
+!
+interface Loopback0
+   ip address 10.255.255.{{ id }}/32
+   ip ospf area 0.0.0.0
+!
+interface Vlan20
+   ip address 10.0.20.{{ id }}/24
+   ip ospf area 0.0.0.0
+!
+ip routing
+!
+router ospf 1
+   router-id 10.255.255.{{ id }}
+   passive-interface Loopback0
+!

@@ -1,0 +1,19 @@
+{% set id = (inventory_hostname | regex_search('[0-9]+')) | int %}
+switchport default mode routed
+!
+hostname CE{{ id }}
+!
+interface Ethernet1
+   no switchport
+   ip address {{ hostvars[pe].l3vpn_service_address | ansible.utils.next_nth_usable(1) }}/31
+!
+interface Loopback0
+   ip address 10.0.{{ id }}.1/24
+!
+ip routing
+!
+router bgp {{ l3vpn_service_asn }}
+   router-id 10.0.{{ id }}.1
+   neighbor {{ hostvars[pe].l3vpn_service_address | ansible.utils.next_nth_usable(0) }} remote-as {{ asn }}
+   network 10.0.{{ id }}.0/24
+!

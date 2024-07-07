@@ -1,0 +1,26 @@
+vrf instance {{ vrf_name }}
+!
+interface {{ l3vpn_service_interface }}
+   vrf {{ vrf_name }}
+   ip address {{ l3vpn_service_address }}
+!
+interface Vxlan1
+   vxlan source-interface Loopback0
+   vxlan vrf {{ vrf_name }} vni {{ l3vni }}
+!
+ip routing vrf {{ vrf_name }}
+!
+router bgp {{ asn }}
+   vrf {{ vrf_name }}
+      rd {{ loopback0 }}:{{ l3vni }}
+      route-target import evpn {{ asn }}:{{ l3vni }}
+      route-target export evpn {{ asn }}:{{ l3vni }}
+      {% set peer = ( l3vpn_service_address | ansible.utils.next_nth_usable(1)) %}
+      neighbor {{ peer }} remote-as {{ l3vpn_service_asn }}
+      neighbor {{ peer }} as-path remote-as replace out
+      redistribute connected
+      !
+      address-family ipv4
+         neighbor {{ peer }} activate
+      !
+!

@@ -1,0 +1,35 @@
+- name: Generate initial config
+  hosts: bb, rr, headend, metro
+  gather_facts: false
+  tasks:
+    - name: Generate BB config
+      ansible.builtin.template:
+        src: initial/bb.j2
+        dest: initial/{{ inventory_hostname | upper }}.conf
+        mode: "0644"
+      delegate_to: localhost
+      when: role == "bb"
+
+    - name: Generate RR config
+      ansible.builtin.template:
+        src: initial/rr.j2
+        dest: initial/{{ inventory_hostname | upper }}.conf
+        mode: "0644"
+      delegate_to: localhost
+      when: role == "rr"
+
+    - name: Generate Headend config
+      ansible.builtin.template:
+        src: initial/headend.j2
+        dest: initial/{{ inventory_hostname | upper }}.conf
+        mode: "0644"
+      delegate_to: localhost
+      when: role == "headend"
+
+    - name: Generate Metro config
+      ansible.builtin.template:
+        src: initial/metro.j2
+        dest: initial/{{ inventory_hostname | upper }}.conf
+        mode: "0644"
+      delegate_to: localhost
+      when: role == "metro"

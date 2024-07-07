@@ -1,0 +1,28 @@
+- name: Deploy Transit config
+  hosts: transit
+  gather_facts: false
+  tasks:
+    - name: Deploy RR config
+      arista.eos.eos_config:
+        src: transit/rr.j2
+      when: service_role == "rr"
+
+    - name: Deploy border config
+      arista.eos.eos_config:
+        src: transit/border.j2
+      when: service_role == "border"
+
+    - name: Deploy customer config
+      arista.eos.eos_config:
+        src: transit/customer.j2
+      when: service_role == "customer"
+
+    - name: Deploy transit config
+      arista.eos.eos_config:
+        src: transit/transit.j2
+      when: service_role == "transit"
+
+    - name: Deploy PE config
+      arista.eos.eos_config:
+        src: transit/pe.j2
+      when: service_role == "pe"

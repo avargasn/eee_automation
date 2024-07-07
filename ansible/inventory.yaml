@@ -1,0 +1,306 @@
+all:
+    vars:
+        ansible_ssh_common_args: '-o ProxyCommand="ssh -q root@192.168.86.3 -W %h:%p "'
+        ansible_connection: ansible.netcommon.network_cli
+        ansible_network_os: arista.eos.eos
+        ansible_user: admin
+        ansible_password: admin
+        ansible_become: true
+        ansible_become_method: enable
+        asn: 65535
+    hosts:
+        bb1:
+            ansible_host: 10.0.137.1
+            loopback0: 198.18.255.1
+            role: bb
+            uplinks:
+                Ethernet1: 198.18.0.0/31
+                Ethernet2: 198.18.0.4/31
+        bb2:
+            ansible_host: 10.0.137.2
+            loopback0: 198.18.255.2
+            role: bb
+            uplinks:
+                Ethernet1: 198.18.0.1/31
+                Ethernet2: 198.18.0.6/31
+        bb3:
+            ansible_host: 10.0.137.3
+            loopback0: 198.18.255.3
+            role: rr
+            uplinks:
+                Ethernet1: 198.18.0.2/31
+                Ethernet2: 198.18.0.5/31
+                Ethernet3: 198.18.0.8/31
+                Ethernet4: 198.18.0.14/31
+        bb4:
+            ansible_host: 10.0.137.4
+            loopback0: 198.18.255.4
+            role: rr
+            uplinks:
+                Ethernet1: 198.18.0.3/31
+                Ethernet2: 198.18.0.7/31
+                Ethernet3: 198.18.0.10/31
+                Ethernet4: 198.18.0.16/31
+        bb5:
+            ansible_host: 10.0.137.5
+            loopback0: 198.18.255.5
+            role: headend
+            uplinks:
+                Ethernet1: 198.18.0.9/31
+                Ethernet2: 198.18.0.17/31
+            downlinks:
+                - Ethernet3
+                - Ethernet4
+        bb6:
+            ansible_host: 10.0.137.6
+            loopback0: 198.18.255.6
+            role: headend
+            uplinks:
+                Ethernet1: 198.18.0.11/31
+                Ethernet2: 198.18.0.15/31
+            downlinks:
+                - Ethernet3
+                - Ethernet4
+        m7:
+            ansible_host: 10.0.137.7
+            loopback0: 198.18.255.7
+            role: metro
+            headend: bb5
+            downlinks:
+                - Ethernet1
+                - Ethernet2
+        m8:
+            ansible_host: 10.0.137.8
+            loopback0: 198.18.255.8
+            role: metro
+            headend: bb5
+            downlinks:
+                - Ethernet1
+                - Ethernet2
+        m9:
+            ansible_host: 10.0.137.9
+            loopback0: 198.18.255.9
+            role: metro
+            headend: bb5
+            downlinks:
+                - Ethernet1
+                - Ethernet2
+        m10:
+            ansible_host: 10.0.137.10
+            loopback0: 198.18.255.10
+            role: metro
+            headend: bb6
+            downlinks:
+                - Ethernet1
+                - Ethernet2
+        m11:
+            ansible_host: 10.0.137.11
+            loopback0: 198.18.255.11
+            role: metro
+            headend: bb6
+            downlinks:
+                - Ethernet1
+                - Ethernet2
+        m12:
+            ansible_host: 10.0.137.12
+            loopback0: 198.18.255.12
+            role: metro
+            headend: bb6
+            downlinks:
+                - Ethernet1
+                - Ethernet2
+        dc13:
+            ansible_host: 10.0.137.13
+            service: l2vpn
+        sw14:
+            ansible_host: 10.0.137.14
+            service: l2vpn
+        sw15:
+            ansible_host: 10.0.137.15
+            service: l2vpn
+        ce16:
+            ansible_host: 10.0.137.16
+            service: l3vpn
+        ce17:
+            ansible_host: 10.0.137.17
+            service: l3vpn
+        ce18:
+            ansible_host: 10.0.137.18
+            service: l3vpn
+        rr19:
+            ansible_host: 10.0.137.19
+            service: transit
+        rr20:
+            ansible_host: 10.0.137.20
+            service: transit
+        pe21:
+            ansible_host: 10.0.137.21
+            service: transit
+        pe22:
+            ansible_host: 10.0.137.22
+            service: transit
+        c23:
+            ansible_host: 10.0.137.23
+            service: transit
+            asn: 23
+        c24:
+            ansible_host: 10.0.137.24
+            service: transit
+            asn: 24
+        t25:
+            ansible_host: 10.0.137.25
+            service: transit
+            asn: 25
+        t26:
+            ansible_host: 10.0.137.26
+            service: transit
+            asn: 26
+    children:
+        bb:
+            hosts:
+                bb1:
+                bb2:
+        rr:
+            hosts:
+                bb3:
+                bb4:
+        headend:
+            hosts:
+                bb5:
+                bb6:
+        metro:
+            hosts:
+                m7:
+                m8:
+                m9:
+                m10:
+                m11:
+                m12:
+        l2vpn:
+            vars:
+                vlan: 20
+                l2vpn_service_vlan: 100
+                l2vpn_service_interface: Ethernet3
+            hosts:
+                dc13:
+                    service_role: ce
+                sw14:
+                    service_role: ce
+                sw15:
+                    service_role: ce
+                bb1:
+                    service_role: pe
+                m7:
+                    service_role: pe
+                m12:
+                    service_role: pe
+        l3vpn:
+            vars:
+                l3vni: 30001
+                l3vpn_service_asn: 65001
+                l3vpn_service_interface: Ethernet3
+                vrf_name: L3VPN
+            hosts:
+                ce16:
+                    service_role: ce
+                    pe: bb2
+                ce17:
+                    service_role: ce
+                    pe: m8
+                ce18:
+                    service_role: ce
+                    pe: m11
+                bb2:
+                    service_role: pe
+                    l3vpn_service_address: 198.18.1.0/31
+                m8:
+                    service_role: pe
+                    l3vpn_service_address: 198.18.1.2/31
+                m11:
+                    service_role: pe
+                    l3vpn_service_address: 198.18.1.4/31
+        transit:
+            vars:
+                shared_network: 198.18.50.0/24
+                transit_service_vlan: 50
+            hosts:
+                rr19:
+                    service_role: rr
+                rr20:
+                    service_role: rr
+                pe21:
+                    service_role: border
+                    uplink_address: 198.18.0.18/31
+                    neighbor: t25
+                pe22:
+                    service_role: border
+                    uplink_address: 198.18.0.20/31
+                    neighbor: t26
+                c23:
+                    service_role: customer
+                    network: 23.23.0.0/16
+                c24:
+                    service_role: customer
+                    network: 24.24.0.0/16
+                t25:
+                    service_role: transit
+                    network: 25.25.0.0/16
+                    neighbors:
+                        - 
+                            - pe21
+                            - Ethernet1
+                        -
+                            - t26
+                            - Ethernet2
+                    uplink_address: 200.0.0.0/31
+                t26:
+                    service_role: transit
+                    network: 26.26.0.0/16
+                    neighbors:
+                        -
+                            - pe22
+                            - Ethernet1
+                        -
+                            - t25
+                            - Ethernet2
+                    uplink_address: 200.0.0.0/31
+                bb1:
+                    service_role: pe
+                    transit_service_interface: Ethernet4
+                bb2:
+                    service_role: pe
+                    transit_service_interface: Ethernet4
+                bb3:
+                    service_role: pe
+                    transit_service_interface: Ethernet5
+                bb4:
+                    service_role: pe
+                    transit_service_interface: Ethernet5
+                m9:
+                    service_role: pe
+                    transit_service_interface: Ethernet3
+                m10:
+                    service_role: pe
+                    transit_service_interface: Ethernet3
+        te:
+            vars:
+                policies:
+                    pe21:
+                        allow:
+                        deny:
+                            - c23
+                    pe22:
+                        allow:
+                        deny:
+                            - c24
+                    c23:
+                        allow:
+                        deny:
+                            - pe21
+                    c24:
+                        allow:
+                        deny:
+                            - pe22
+            hosts:
+                rr19:
+                rr20:

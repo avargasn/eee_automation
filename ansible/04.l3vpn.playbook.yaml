@@ -1,0 +1,13 @@
+- name: Deploy L3VPN config
+  hosts: l3vpn
+  gather_facts: false
+  tasks:
+    - name: Deploy CE config
+      arista.eos.eos_config:
+        src: l3vpn/ce.j2
+      when: service_role == "ce"
+
+    - name: Deploy service config
+      arista.eos.eos_config:
+        src: l3vpn/pe.j2
+      when: service_role == "pe"

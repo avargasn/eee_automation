@@ -1,0 +1,18 @@
+{% for host in policies -%}
+no route-map {{ host | upper }}_OUT
+{% if (policies[host].deny | length) > 0 %}
+route-map {{ host | upper }}_OUT deny 10
+   match community {{ policies[host].deny | join(' ') | upper }}
+!
+{% endif -%}
+route-map {{ host | upper }}_OUT permit 20
+   {% if policies[host].allow -%}
+   match community {{ policies[host].allow | join(' ') | upper }}
+   {% endif -%}
+!
+{% endfor -%}
+router bgp {{ asn }}
+   {% for host in policies -%}
+   neighbor {{ host | upper }} route-map {{ host | upper }}_OUT out
+   {% endfor -%}
+!

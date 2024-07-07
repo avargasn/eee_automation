@@ -1,0 +1,36 @@
+- name: Show version
+  hosts: bb3
+  gather_facts: false
+  tasks:
+    # - name: RR list
+    #   ansible.builtin.debug:
+    #     msg: "{{ groups['rr'] | map('extract', hostvars, 'loopback0') | list }}"
+    #   delegate_to: localhost
+    #   when: role == "bb"
+
+    # - name: Router ID
+    #   ansible.builtin.debug:
+    #     msg: "{{ (loopback0 | split('.'))[-1] }}"
+    #   delegate_to: localhost
+    #   when: role == "bb"
+
+    # - name: Debug
+    #   ansible.builtin.debug:
+    #     msg: "{{ ansible_play_hosts }}"
+    #   delegate_to: localhost
+
+    # - name: Debug
+    #   ansible.builtin.debug:
+    #     msg: "{{ shared_network | ansible.utils.ipaddr(inventory_hostname | regex_search('[0-9]+')) | ansible.utils.ipaddr('address') }}"
+    #   delegate_to: localhost
+
+    # - name: Debug
+    #   ansible.builtin.debug:
+    #     msg: "{{ ((inventory_hostname | regex_search('[0-9]+')) > (item | regex_search('[0-9]+'))) | int }}"
+    #   with_items: "{{ neighbors }}"
+    #   delegate_to: localhost
+
+    - name: Debug
+      ansible.builtin.debug:
+        msg: "{{ groups }}"
+      delegate_to: localhost

@@ -1,0 +1,20 @@
+platform tfa personality python
+!
+vlan {{ l2vpn_service_vlan }}
+!
+interface {{ l2vpn_service_interface }}
+   switchport access vlan {{ l2vpn_service_vlan }}
+   switchport mode dot1q-tunnel
+   switchport
+!
+interface Vxlan1
+   vxlan source-interface Loopback0
+   vxlan vlan {{ l2vpn_service_vlan }} vni 2{{ '%05d' | format(l2vpn_service_vlan) }}
+!
+router bgp {{ asn }}
+   vlan {{ l2vpn_service_vlan }}
+      rd auto
+      route-target both {{ asn }}:2{{ '%05d' | format(l2vpn_service_vlan) }}
+      redistribute learned
+   !
+!

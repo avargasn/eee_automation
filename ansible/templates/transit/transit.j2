@@ -1,0 +1,33 @@
+{% set id = (inventory_hostname | regex_search('[0-9]+')) %}
+switchport default mode routed
+!
+hostname {{ inventory_hostname | upper }}
+!
+{% for item in neighbors -%}
+{% set index = ((inventory_hostname | regex_search('[0-9]+')) > (item | regex_search('[0-9]+'))) | int %}
+interface {{ item[1] }}
+   no switchport
+   ip address {{ hostvars[item[0]].uplink_address | ansible.utils.ipaddr(index) }}
+!
+{% endfor %}
+interface Loopback0
+   ip address {{ network | ansible.utils.ipaddr(1) }}
+!
+ip routing
+!
+router bgp {{ asn }}
+   router-id {{ network | ansible.utils.ipaddr(1) | ansible.utils.ipaddr('address') }}
+   no bgp default ipv4-unicast
+   {% for item in neighbors -%}
+   {% set index = ((inventory_hostname | regex_search('[0-9]+')) < (item[0] | regex_search('[0-9]+'))) | int %}
+   neighbor {{ item[0] | upper }} peer group
+   neighbor {{ item[0] | upper }} remote-as {{ hostvars[item[0]].asn }}
+   neighbor {{ hostvars[item[0]].uplink_address | ansible.utils.ipaddr(index) | ansible.utils.ipaddr('address') }} peer group {{ item[0] | upper }}
+   {% endfor -%}
+   !
+   address-family ipv4
+      network {{ network }}
+      {% for item in neighbors -%}
+      neighbor {{ item[0] | upper }} activate
+      {% endfor -%}
+!

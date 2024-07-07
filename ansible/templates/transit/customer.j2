@@ -1,0 +1,29 @@
+{% set id = (inventory_hostname | regex_search('[0-9]+')) %}
+switchport default mode routed
+!
+hostname {{ inventory_hostname | upper }}
+!
+interface Ethernet1
+   no switchport
+   ip address {{ shared_network | ansible.utils.ipaddr(id) }}
+!
+interface Loopback0
+   ip address {{ network | ansible.utils.ipaddr(1) }}
+!
+ip routing
+!
+router bgp {{ asn }}
+   router-id {{ network | ansible.utils.ipaddr(1) | ansible.utils.ipaddr('address') }}
+   no bgp default ipv4-unicast
+   {% for host in ansible_play_hosts -%}
+   {% if hostvars[host].service_role == 'rr' %}
+   neighbor RR peer group
+   neighbor RR remote-as {{ hostvars[host].asn }}
+   neighbor {{ shared_network | ansible.utils.ipaddr(host | regex_search('[0-9]+')) | ansible.utils.ipaddr('address') }} peer group RR
+   {% endif %}
+   {% endfor -%}
+   !
+   address-family ipv4
+      network {{ network }}
+      neighbor RR activate
+!

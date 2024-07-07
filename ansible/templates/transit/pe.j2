@@ -1,0 +1,16 @@
+interface {{ transit_service_interface }}
+   switchport access vlan {{ transit_service_vlan }}
+   switchport
+   spanning-tree portfast
+!
+interface Vxlan1
+   vxlan source-interface Loopback0
+   vxlan vlan {{ transit_service_vlan }} vni 2{{ '%05d' | format(transit_service_vlan) }}
+!
+router bgp {{ asn }}
+   vlan {{ transit_service_vlan }}
+      rd auto
+      route-target both {{ asn }}:2{{ '%05d' | format(transit_service_vlan) }}
+      redistribute learned
+      !
+!
