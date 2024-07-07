@@ -27,17 +27,17 @@ Open Connection and Log In
     Login              ${USERNAME}    ${PASSWORD}    proxy_cmd=ssh -l root -i ~/.ssh/id_rsa -W ${HOST}:22 ${JUMPSERVER}
 
 Verify Isis Neighboring
-    ${show_isis_neighbors}=    Execute Command    show isis neighbors
-    ${show_isis_interface_brief}=    Execute Command    show isis interface brief
-    ${count_isis_neighbors}=    Get Count    ${show_isis_neighbors}    UP
-    ${count_isis_interfaces}=   Get Count    ${show_isis_interface_brief}    point-to-point
-    Should Be Equal    ${count_isis_neighbors}    ${count_isis_interfaces}
+    ${SHOW_ISIS_NEIGHBORS}=    Execute Command    show isis neighbors
+    ${SHOW_ISIS_INTERFACE_BRIEF}=    Execute Command    show isis interface brief
+    ${COUNT_ISIS_NEIGHBORS}=    Get Count    ${SHOW_ISIS_NEIGHBORS}    UP
+    ${COUNT_ISIS_INTERFACES}=   Get Count    ${SHOW_ISIS_INTERFACE_BRIEF}    point-to-point
+    Should Be Equal    ${COUNT_ISIS_NEIGHBORS}    ${COUNT_ISIS_INTERFACES}
 
 Verify Bgp Sessions
-    ${show_bgp_neighbors}=    Execute Command    show bgp neighbors
-    ${count_bgp_neighbors}=    Get Count    ${show_bgp_neighbors}    BGP neighbor is
-    ${count_bgp_established}=   Get Count    ${show_bgp_neighbors}    TCP state is ESTABLISHED
-    Should Be Equal    ${count_bgp_neighbors}    ${count_bgp_established}
+    ${SHOW_BGP_NEIGHBORS}=    Execute Command    show bgp neighbors
+    ${COUNT_BGP_NEIGHBORS}=    Get Count    ${SHOW_BGP_NEIGHBORS}    BGP neighbor is
+    ${COUNT_BGP_ESTABLISHED}=   Get Count    ${SHOW_BGP_NEIGHBORS}    TCP state is ESTABLISHED
+    Should Be Equal    ${COUNT_BGP_NEIGHBORS}    ${COUNT_BGP_ESTABLISHED}
 
 *** Test Cases ***
 Validate Routing Protocols Status
